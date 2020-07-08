@@ -1,0 +1,74 @@
+## Generated mta.yaml based on template version 0.2.0
+## appName = cap_with_service_extension
+## language=nodejs; multiTenant=false
+## approuter=
+_schema-version: '3.1'
+ID: cap_with_service_extension
+version: 1.0.0
+description: "A simple CAP project."
+parameters:
+  enable-parallel-deployments: true
+  
+  
+build-parameters:
+  before-all:
+   - builder: custom
+     commands:
+      - npm install
+      - npx cds build
+
+modules:
+ # --------------------- SERVER MODULE ------------------------
+ - name: cap_with_service_extension-srv
+ # ------------------------------------------------------------
+   type: nodejs
+   path: gen/srv
+   properties:
+     EXIT: 1  # required by deploy.js task to terminate 
+   requires:
+    # Resources extracted from CAP configuration
+    - name: cap_with_service_extension-db
+    - name: cap_with_service_extension-uaa
+    - name: cap_with_service_extension-dest
+   provides:
+    - name: srv-binding      # required by consumers of CAP services (e.g. approuter)
+      properties:
+        srv-url: ${default-url}
+
+ # -------------------- SIDECAR MODULE ------------------------
+ - name: db
+ # ------------------------------------------------------------
+   type: hdb
+   path: gen/db  
+   parameters:
+     app-name: cap_with_service_extension-db  
+   requires:
+    # 'hana' and 'xsuaa' resources extracted from CAP configuration
+    - name: cap_with_service_extension-db
+
+
+resources:
+ # services extracted from CAP configuration
+ # 'service-plan' can be configured via 'cds.requires.<name>.vcap.plan'
+# ------------------------------------------------------------
+ - name: cap_with_service_extension-db
+# ------------------------------------------------------------
+   type: com.sap.xs.hdi-container
+   parameters:
+     service: hanatrial  # or 'hanatrial' on trial landscapes
+     service-plan: hdi-shared
+   properties:
+     hdi-service-name: ${service-name}
+
+ - name: cap_with_service_extension-uaa
+   type: org.cloudfoundry.managed-service
+   parameters:
+     path: ./xs-security.json
+     service: xsuaa
+     service-plan: application  
+
+ - name: cap_with_service_extension-dest
+   type: org.cloudfoundry.managed-service
+   parameters:
+     service-plan: lite
+     service: destination

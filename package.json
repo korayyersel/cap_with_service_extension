@@ -1,32 +1,30 @@
 {
-  "name": "cap_with_service_extension",
-  "version": "1.0.0",
-  "description": "A simple CAP project.",
-  "repository": "<Add your repository here>",
-  "license": "UNLICENSED",
-  "private": true,
-  "dependencies": {
-    "@sap/cds": "^3",
-    "express": "^4"
-  },
-  "scripts": {
-    "start": "npx cds run"
-  },
-  "cds": {
-    "requires": {
-      "db": {
-        "kind": "sqlite",
-        "credentials": {
-          "database": "qperior.serviceextension"
+    "name": "cap_with_service_extension",
+    "version": "1.0.0",
+    "description": "A simple CAP project.",
+    "repository": "<Add your repository here>",
+    "license": "UNLICENSED",
+    "private": true,
+    "dependencies": {
+        "@sap/cds": "^3",
+        "@sap/hana-client": "^2.5.86",
+        "express": "^4"
+    },
+    "scripts": {
+        "start": "npx cds run"
+    },
+    "cds": {
+        "requires": {
+            "db": {
+                "kind": "hana"
+            },
+            "NorthWind": {
+                "kind": "odata",
+                "model": "srv/external/NorthWind",
+                "credentials": {
+                    "destination": "NorthWind"
+                }
+            }
         }
-      },
-      "NorthWind": {
-        "kind": "odata",
-        "model": "srv/external/NorthWind",
-        "credentials": {
-          "url": "https://services.odata.org/Experimental/OData/OData.svc"
-        }
-      }
     }
-  }
 }
